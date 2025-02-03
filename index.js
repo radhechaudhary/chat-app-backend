@@ -27,7 +27,13 @@ app.use(bodyParser.urlencoded({ extended: true })); //body parser to encode body
 app.use(bodyParser.json());
 app.use(express.json());
 const server = createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+    cors: {
+      origin: "https://chat-app-frontend-two-gold.vercel.app",
+      methods: ["GET", "POST"],
+      credentials: true
+    }
+  });
 
 cloudinary.config({
     cloud_name:"dtoym7pet",
