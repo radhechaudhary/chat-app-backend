@@ -14,7 +14,7 @@ import {v2 as cloudinary} from "cloudinary";
 import { createReadStream } from "streamifier";
 import { configDotenv } from "dotenv";
 
-const PORT=4000;
+const PORT=8058;
 const app=express();
 // configDotenv();
 app.use(cors({
@@ -22,7 +22,7 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-  }));
+}));
   
   app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true })); //body parser to encode body data from frontend
