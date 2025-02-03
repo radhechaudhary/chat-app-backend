@@ -16,23 +16,26 @@ import { configDotenv } from "dotenv";
 
 const PORT=4000;
 const app=express();
-app.use(cors());
+// configDotenv();
+app.use(cors({
+    origin:["http://localhost:3000"],
+    methods:["GET", "POST"]
+}));
 app.use(bodyParser.urlencoded({ extended: true })); //body parser to encode body data from frontend
 app.use(bodyParser.json());
 app.use(express.json());
-// app.use(configDotenv)
 const server = createServer(app);
 const io = new Server(server, {
-    // cors: {
-    //   origin: "http://localhost:3000", // Allow requests from this origin
-    //   methods: ["GET", "POST"],       // Allow these HTTP methods
-    // },
+    cors: {
+      origin: ["http://localhost:3000"], // Allow requests from this origin
+      methods: ["GET", "POST"],       // Allow these HTTP methods
+    },
   });
 
 cloudinary.config({
-    cloud_name:'dtoym7pet',
-    api_key:'571783941667238',
-    api_secret:'g8jU1T7FFL2YE3Xbs5D_5Yfmp24'
+    cloud_name:"dtoym7pet",
+    api_key:"571783941667238",
+    api_secret:"g8jU1T7FFL2YE3Xbs5D_5Yfmp24"
 })
 
 //setup multer
@@ -73,7 +76,7 @@ io.on('connection',(socket)=>{  // socket connection
         }  
       });
       socket.on('newChat',async(searchingValue)=>{  // search for the username
-        const data=await db.query('select username, name, profilephoto, bio from users where username=$1',[searchingValue]);
+        const data=await db.query('select username, name, profilephoto, bio from users where username LIKE $1',[`%${searchingValue}%`]);
         if(data.rows.length>0){
             io.to(socket.id).emit('AddnewChat', data.rows[0])
         }
@@ -302,39 +305,38 @@ app.post('/edit-profile',   upload.single('file'), verifyTokenMiddleware, async(
             }
             catch(error){
                 console.log(error);
+            } 
+        }
+        try {
+            if (!req.file || !req.file.buffer) {
+                return res.status(500).send('Error uploading to Cloudinary: ' + error.message);
             }
-            
-            try {
-                if (!req.file || !req.file.buffer) {
+            // Upload to Cloudinary with transformations
+            const result =  cloudinary.uploader.upload_stream(
+              {
+                folder: 'profile_photos', // Optional folder in Cloudinary
+                quality: 'auto',           // Automatic quality optimization (good for web)
+                fetch_format: 'auto',      // Automatically selects the best format (e.g., WebP, JPEG, PNG)
+                width: 700,                // Resize to width of 800px (you can change this as needed)
+                crop: 'scale',             // Scaling crop mode (maintains aspect ratio)             
+              },
+              async (error, uploadResult) => {
+                if (error) {
+                    console.log(error.message)
                     return res.status(500).send('Error uploading to Cloudinary: ' + error.message);
                 }
-                // Upload to Cloudinary with transformations
-                const result =  cloudinary.uploader.upload_stream(
-                  {
-                    folder: 'profile_photos', // Optional folder in Cloudinary
-                    quality: 'auto',           // Automatic quality optimization (good for web)
-                    fetch_format: 'auto',      // Automatically selects the best format (e.g., WebP, JPEG, PNG)
-                    width: 700,                // Resize to width of 800px (you can change this as needed)
-                    crop: 'scale',             // Scaling crop mode (maintains aspect ratio)             
-                  },
-                  async (error, uploadResult) => {
-                    if (error) {
-                        console.log(error.message)
-                        return res.status(500).send('Error uploading to Cloudinary: ' + error.message);
-                    }
-                    // save the image URL after successful upload
-                    await db.query("update users set profilephoto=$1 where username=$2",[uploadResult.secure_url, username])
-                    res.json({status:'valid', photo_url:uploadResult.secure_url}) 
-                  }
-                );
-                // Pipe the file from Multer directly to Cloudinary
-                createReadStream(req.file.buffer).pipe(result);
-                
-              } catch (error) {
-                console.error(error.message);
-                res.status(500).send('Error uploading file');
-              } 
-        }     
+                // save the image URL after successful upload
+                await db.query("update users set profilephoto=$1 where username=$2",[uploadResult.secure_url, username])
+                res.json({status:'valid', photo_url:uploadResult.secure_url}) 
+              }
+            );
+            // Pipe the file from Multer directly to Cloudinary
+            createReadStream(req.file.buffer).pipe(result);
+            
+          } catch (error) {
+            console.error(error.message);
+            res.status(500).send('Error uploading file');
+          }     
     } catch (err) {
         console.log('Error in database update:', err);
         res.send("Error");
