@@ -21,17 +21,7 @@ const allowedOrigins = [
     "https://localhost:3000",  // React development server
     "https://chat-app-frontend-two-gold.vercel.app/" // Your deployed frontend domain
   ];
-app.use(cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS not allowed"));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
-    credentials: true // Allow cookies or authorization headers
-  }));
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true })); //body parser to encode body data from frontend
 app.use(bodyParser.json());
 app.use(express.json());
