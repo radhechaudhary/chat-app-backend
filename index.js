@@ -18,7 +18,7 @@ const PORT=4000;
 const app=express();
 // configDotenv();
 const corsOptions = {  //making  the  API domain restricted
-    origin: 'https://chat-app-frontend-two-gold.vercel.app/login', // 
+    origin: 'https://chat-app-frontend-two-gold.vercel.app', // 
     optionsSuccessStatus: 200, // For legacy browser support
   };
   
@@ -27,7 +27,6 @@ app.use(bodyParser.urlencoded({ extended: true })); //body parser to encode body
 app.use(bodyParser.json());
 app.use(express.json());
 const server = createServer(app);
-app.use(cors());
 const io = new Server(server);
 
 cloudinary.config({
