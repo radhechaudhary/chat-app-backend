@@ -18,7 +18,7 @@ const PORT=4000;
 const app=express();
 // configDotenv();
 const allowedOrigins = [
-    "http://localhost:3000",  // React development server
+    "https://localhost:3000",  // React development server
     "https://chat-app-frontend-two-gold.vercel.app/" // Your deployed frontend domain
   ];
 app.use(cors({
@@ -38,7 +38,7 @@ app.use(express.json());
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
-      origin: ["http://localhost:3000"], // Allow requests from this origin
+      origin: ["https://localhost:3000", 'https://chat-app-frontend-two-gold.vercel.app'], // Allow requests from this origin
       methods: ["GET", "POST"],       // Allow these HTTP methods
     },
   });
