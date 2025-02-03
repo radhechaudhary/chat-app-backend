@@ -19,7 +19,7 @@ const app=express();
 // configDotenv();
 const allowedOrigins = [
     "http://localhost:3000",  // React development server
-    "https://yourfrontend.com" // Your deployed frontend domain
+    "https://chat-app-frontend-two-gold.vercel.app/" // Your deployed frontend domain
   ];
 app.use(cors({
     origin: function (origin, callback) {
