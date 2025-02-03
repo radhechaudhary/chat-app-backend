@@ -17,7 +17,21 @@ import { configDotenv } from "dotenv";
 const PORT=4000;
 const app=express();
 // configDotenv();
-app.use(cors());
+const allowedOrigins = [
+    "http://localhost:3000",  // React development server
+    "https://yourfrontend.com" // Your deployed frontend domain
+  ];
+app.use(cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS not allowed"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
+    credentials: true // Allow cookies or authorization headers
+  }));
 app.use(bodyParser.urlencoded({ extended: true })); //body parser to encode body data from frontend
 app.use(bodyParser.json());
 app.use(express.json());
