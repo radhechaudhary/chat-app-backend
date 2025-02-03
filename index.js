@@ -12,6 +12,7 @@ import users_online from "./users_online.js";
 import multer from "multer";
 import {v2 as cloudinary} from "cloudinary";
 import { createReadStream } from "streamifier";
+import { configDotenv } from "dotenv";
 
 const PORT=4000;
 const app=express();
@@ -19,12 +20,13 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true })); //body parser to encode body data from frontend
 app.use(bodyParser.json());
 app.use(express.json());
+// app.use(configDotenv)
 const server = createServer(app);
 const io = new Server(server, {
-    cors: {
-      origin: "http://localhost:3000", // Allow requests from this origin
-      methods: ["GET", "POST"],       // Allow these HTTP methods
-    },
+    // cors: {
+    //   origin: "http://localhost:3000", // Allow requests from this origin
+    //   methods: ["GET", "POST"],       // Allow these HTTP methods
+    // },
   });
 
 cloudinary.config({
@@ -37,12 +39,12 @@ cloudinary.config({
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+const connectionString= "postgresql://postgres:HfdKaiaLwLwTxOYRtdgUnHpYaqGqcAqA@junction.proxy.rlwy.net:21476/railway"
 const db=new pg.Client({
-    user:"postgres",
-    database:"chat-app",
-    port:5432,
-    host:"localhost",
-    password:"Radhe@1101"
+    connectionString,
+    ssl: {
+        rejectUnauthorized: false, // Required for some cloud databases like Railway
+    }
 })
 db.connect();
 
@@ -237,8 +239,7 @@ app.post('/upload-profile-photo',  upload.single('file'), async (req, res)=>{
     const {username, token}=req.body;
     try {
         if (!req.file || !req.file.buffer) {
-            console.log('no file')
-            return res.status(400).send('No file uploaded.');
+            return res.json({status:'no file'})
         }
         // Upload to Cloudinary with transformations
         const result =  cloudinary.uploader.upload_stream(
