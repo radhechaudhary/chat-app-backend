@@ -17,21 +17,18 @@ import { configDotenv } from "dotenv";
 const PORT=4000;
 const app=express();
 // configDotenv();
-const allowedOrigins = [
-    "https://localhost:3000",  // React development server
-    "https://chat-app-frontend-two-gold.vercel.app/" // Your deployed frontend domain
-  ];
-app.use(cors());
+const corsOptions = {  //making  the  API domain restricted
+    origin: 'https://chat-app-frontend-two-gold.vercel.app/login', // 
+    optionsSuccessStatus: 200, // For legacy browser support
+  };
+  
+app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: true })); //body parser to encode body data from frontend
 app.use(bodyParser.json());
 app.use(express.json());
 const server = createServer(app);
-const io = new Server(server, {
-    cors: {
-      origin: ["https://localhost:3000", 'https://chat-app-frontend-two-gold.vercel.app'], // Allow requests from this origin
-      methods: ["GET", "POST"],       // Allow these HTTP methods
-    },
-  });
+app.use(cors());
+const io = new Server(server);
 
 cloudinary.config({
     cloud_name:"dtoym7pet",
