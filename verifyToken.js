@@ -1,7 +1,7 @@
 import jsonwebtoken from "jsonwebtoken";
 
 const verifyTokenMiddleware = (req, res, next) => { 
-    const { token } = req.body; 
+    const token = req.headers.authorization?.split(' ')[1];
     const secretKey="h8u5896utri3i90a(%(Tfi*(%)))";
     if (!token) return res.status(403).json({  
         msg: "No token present" 
