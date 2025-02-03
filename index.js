@@ -17,14 +17,14 @@ import { configDotenv } from "dotenv";
 const PORT=4000;
 const app=express();
 // configDotenv();
-const corsOptions = {  //making  the  API domain restricted
-    origin: 'https://chat-app-frontend-two-gold.vercel.app',
+app.use(cors({
+    origin: "https://chat-app-frontend-two-gold.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true, // Required for cookies or authentication
-    optionsSuccessStatus: 200, // For legacy browser support
-  };
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  }));
   
-app.use(cors(corsOptions));
+  app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true })); //body parser to encode body data from frontend
 app.use(bodyParser.json());
 app.use(express.json());
@@ -33,8 +33,9 @@ const io = new Server(server, {
     cors: {
       origin: "https://chat-app-frontend-two-gold.vercel.app",
       methods: ["GET", "POST"],
-      credentials: true
-    }
+      credentials: true,
+    },
+    transports: ["websocket", "polling"], // ✅ Allow both WebSocket & polling
   });
 
 cloudinary.config({
