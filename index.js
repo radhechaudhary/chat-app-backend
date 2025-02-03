@@ -18,7 +18,9 @@ const PORT=4000;
 const app=express();
 // configDotenv();
 const corsOptions = {  //making  the  API domain restricted
-    origin: 'https://chat-app-frontend-two-gold.vercel.app', // 
+    origin: 'https://chat-app-frontend-two-gold.vercel.app',
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true, // Required for cookies or authentication
     optionsSuccessStatus: 200, // For legacy browser support
   };
   
