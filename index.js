@@ -17,10 +17,7 @@ import { configDotenv } from "dotenv";
 const PORT=4000;
 const app=express();
 // configDotenv();
-app.use(cors({
-    origin:["http://localhost:3000"],
-    methods:["GET", "POST"]
-}));
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true })); //body parser to encode body data from frontend
 app.use(bodyParser.json());
 app.use(express.json());
