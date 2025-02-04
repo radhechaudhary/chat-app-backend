@@ -68,15 +68,14 @@ io.on('connection',(socket)=>{  // socket connection
         users_online[userId]=true;
         console.log(`user ${userId} got connected`)
     }
-      socket.on("disconnect", (reason) => {
-        // console.log(`❌ User disconnected: ${socket.id}, Reason: ${reason}`);
-        
-        // Remove user from active list
-
+      socket.on("disconnect", (reason) => { // listner when socket disconnects
         const userId=Object.keys(users).find(key => users[key] === socket.id);
-        console.log(`user ${userId} got disconnected`)
-        active_users[userId]=false;
-        users_online[userId]=false;
+        if (userId) {
+            delete users[userId];  
+            delete active_users[userId];  
+            delete users_online[userId];  
+            console.log(`User ${userId} removed from active users`);
+        }
     });
       socket.on('get_saved_messages', async(username)=>{
         console.log(username)
