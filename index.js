@@ -78,7 +78,7 @@ io.on('connection',(socket)=>{  // socket connection
         }
     });
       socket.on('get_saved_messages', async(username)=>{
-        console.log(username)
+        console.log(users[username])
         if(username){
             const data=await db.query('select new_messages from users where username=$1', [username]);
             const messages=data.rows[0].new_messages; 
