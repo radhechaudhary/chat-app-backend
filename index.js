@@ -67,7 +67,6 @@ io.on('connection',(socket)=>{  // socket connection
         active_users[userId]=true;
         users_online[userId]=true;
         console.log(`user ${userId} got connected`)
-        io.emit('update_status_list', users_online);
     }
       socket.on("disconnect", (reason) => {
         // console.log(`❌ User disconnected: ${socket.id}, Reason: ${reason}`);
