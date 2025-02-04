@@ -62,6 +62,8 @@ app.get("/", (req,res)=>{
 })
 
 io.on('connection',(socket)=>{  // socket connection
+    users[userId] = socket.id;
+    active_users[userId]=true;
     socket.on('register', (userId) => { // regetser socketId
         users[userId] = socket.id;
         active_users[userId]=true;
