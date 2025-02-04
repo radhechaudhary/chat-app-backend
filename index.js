@@ -74,6 +74,7 @@ io.on('connection',(socket)=>{  // socket connection
         // Remove user from active list
 
         const userId=Object.keys(users).find(key => users[key] === socket.id);
+        console.log(`user ${userId} got disconnected`)
         delete active_users[userId];
         users_online[userId]=false;
         io.emit('update_status_list', users_online);
