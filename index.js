@@ -73,13 +73,10 @@ io.on('connection',(socket)=>{  // socket connection
 
         const userId=Object.keys(users).find(key => users[key] === socket.id);
         delete active_users[userId];
-        delete users_online[userId];
+        users_online[userId]=false;
         delete users[userId];
+        io.emit('update_status_list', users_online);
 
-        // Notify other users that this user went offline
-        if (userId) {
-            io.emit("userOffline", userId);
-        }
     });
       socket.on('get_saved_messages', async(username)=>{
         if(username){
