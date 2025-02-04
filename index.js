@@ -12,7 +12,6 @@ import users_online from "./users_online.js";
 import multer from "multer";
 import {v2 as cloudinary} from "cloudinary";
 import { createReadStream } from "streamifier";
-import { configDotenv } from "dotenv";
 
 const PORT=8058;
 const app=express();
@@ -81,6 +80,7 @@ io.on('connection',(socket)=>{  // socket connection
         users_online[userId]=false;
     });
       socket.on('get_saved_messages', async(username)=>{
+        console.log(username)
         if(username){
             const data=await db.query('select new_messages from users where username=$1', [username]);
             const messages=data.rows[0].new_messages; 
