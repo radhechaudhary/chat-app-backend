@@ -111,7 +111,7 @@ io.on('connection',(socket)=>{  // socket connection
         active_users[username]=false;
       })
       socket.on('isOnline', (username)=>{
-        io.to(socket.id).emit(users_online[username])
+        io.to(socket.id).emit("Online",users_online[username])
       })
       socket.on('typing', (recieverUsername, username)=>{
         if(recieverUsername.members){
