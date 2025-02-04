@@ -79,8 +79,6 @@ io.on('connection',(socket)=>{  // socket connection
         console.log(`user ${userId} got disconnected`)
         active_users[userId]=false;
         users_online[userId]=false;
-        io.emit('update_status_list', users_online);
-
     });
       socket.on('get_saved_messages', async(username)=>{
         if(username){
@@ -108,10 +106,12 @@ io.on('connection',(socket)=>{  // socket connection
       })
       socket.on('update_status', (username, update)=>{ // update online users list
         users_online[username]=update;
-        io.emit('update_status_list', users_online);  // send list to every user
       })
       socket.on('update_active_status_false',(username)=>{
         active_users[username]=false;
+      })
+      socket.on('isOnline', (username)=>{
+        io.to(socket.id).emit(users_online[username])
       })
       socket.on('typing', (recieverUsername, username)=>{
         if(recieverUsername.members){
