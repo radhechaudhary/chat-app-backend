@@ -24,7 +24,7 @@ app.use(cors({
     credentials: true,
 }));
   
-  app.use(express.json());
+app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true })); //body parser to encode body data from frontend
 app.use(bodyParser.json());
 app.use(express.json());
@@ -95,7 +95,7 @@ io.on('connection',(socket)=>{  // socket connection
              
         }  
       });
-      socket.on('newChat',async(searchingValue)=>{  // search for the username
+      socket.on('newChat',async(searchingValue)=>{  // add new user to chatList
         const data=await db.query('select username, name, profilephoto, bio from users where username LIKE $1',[`%${searchingValue}%`]);
         if(data.rows.length>0){
             io.to(socket.id).emit('AddnewChat', data.rows[0])
@@ -107,13 +107,13 @@ io.on('connection',(socket)=>{  // socket connection
       socket.on('update_status', (username, update)=>{ // update online users list
         users_online[username]=update;
       })
-      socket.on('update_active_status_false',(username)=>{
+      socket.on('update_active_status_false',(username)=>{ // update activity list 
         active_users[username]=false;
       })
-      socket.on('isOnline', (username)=>{
+      socket.on('isOnline', (username)=>{ // emits that a particular user is online or not
         io.to(socket.id).emit("Online",users_online[username])
       })
-      socket.on('typing', (recieverUsername, username)=>{
+      socket.on('typing', (recieverUsername, username)=>{ // indates if typing
         if(recieverUsername.members){
             recieverUsername.members.map((user)=>{
                 if(user.username!==username){
@@ -123,7 +123,7 @@ io.on('connection',(socket)=>{  // socket connection
         }
         else io.to(users[recieverUsername]).emit('UserTyping', {[username]:true});
       })
-      socket.on('stoppedTyping', (recieverUsername, username)=>{
+      socket.on('stoppedTyping', (recieverUsername, username)=>{ // when stopped typing
         if(recieverUsername.members){
             recieverUsername.members.map((user)=>{
                 io.to(users[user.username]).emit('UserTyping', {[recieverUsername.username]:false});
@@ -157,7 +157,7 @@ io.on('connection',(socket)=>{  // socket connection
             io.to(users[member.username]).emit('addInGroup',  { groupName:groupName, username:username, members:groupList, admin:admin });
         })
       })
-      socket.on('groupMessage', ({recieverUsers, groupName, username,  senderUsername, senderName, message, time })=>{
+      socket.on('groupMessage', ({recieverUsers, groupName, username,  senderUsername, senderName, message, time })=>{  // socket for group messages
         recieverUsers.map(async(recieverUsername)=>{
             
             if(active_users[recieverUsername.username] && recieverUsername.username!==senderUsername){
@@ -180,7 +180,7 @@ io.on('connection',(socket)=>{  // socket connection
             }
         })
       })
-      socket.on('update_data', async (chatlist) => {
+      socket.on('update_data', async (chatlist) => {  // to provide the updated chatlist 
         let updated_list = [];
         if (chatlist.length > 0) {
           // Use Promise.all to handle all async operations
@@ -214,12 +214,12 @@ app.post('/login', async(req, res)=>{  //login route
         const isMatch = await bcrypt.compare(password, data.rows[0].password);
         if(isMatch){
             const secretKey="h8u5896utri3i90a(%(Tfi*(%)))";
-            const payload={
+            const payload={  // creating a payload for token
                 userId:data.rows[0].sr_no,
                 username:username
             }
-            const token = jsonwebtoken.sign(payload, secretKey);
-            const a=await db.query("update users set token=$1 where username=$2",[ token, username ])
+            const token = jsonwebtoken.sign(payload, secretKey); // torkn
+            const a=await db.query("update users set token=$1 where username=$2",[ token, username ]) // updating the token
             res.json({status:"valid",profilephoto:data.rows[0].profilephoto, username:username, name:data.rows[0].name, token:token});
         }
         else{
@@ -244,15 +244,15 @@ app.post('/signup', async(req, res)=>{   // signUp route
         const saltRounds = 10; // Higher rounds = more security but slower
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         const data=await db.query("insert into users (name, username, password) values($1,$2,$3) returning sr_no",[name, username, hashedPassword]);
-        const secretKey="h8u5896utri3i90a(%(Tfi*(%)))";
-        const payload={
+        const secretKey="h8u5896utri3i90a(%(Tfi*(%)))"; 
+        const payload={ // create a payload for token
             userId:data.rows[0].sr_no,
             userId:4,
             username:username
         }
-        const token = jsonwebtoken.sign(payload, secretKey);
+        const token = jsonwebtoken.sign(payload, secretKey); //token
         const a=await db.query("update users set token=$1, new_messages=$3 where username=$2",[ token,  username, '{}' ])
-        res.json({status:"valid", username:username, token:token});
+        res.json({status:"valid", username:username, token:token}); // return valid status
         }
     catch(err){
         console.log(err)
@@ -260,7 +260,7 @@ app.post('/signup', async(req, res)=>{   // signUp route
     }}
 })
 
-app.post('/upload-profile-photo',  upload.single('file'), async (req, res)=>{
+app.post('/upload-profile-photo',  upload.single('file'), async (req, res)=>{  // uploading profile photo when creating a account
     const {username, token}=req.body;
     try {
         if (!req.file || !req.file.buffer) {
@@ -296,8 +296,8 @@ app.post('/upload-profile-photo',  upload.single('file'), async (req, res)=>{
       } 
    
 })
-app.post('/edit-profile',   upload.single('file'), verifyTokenMiddleware, async(req, res) => {
-    const { username, name, bio, token } = req.body;
+app.post('/edit-profile',   upload.single('file'), verifyTokenMiddleware, async(req, res) => {  //edit profile
+    const { username, name, bio} = req.body;
     try {
         // Update user's name and bio in the database
         await db.query("update users set name=$1, bio=$2 where username=$3", [name, bio, username]);
@@ -306,7 +306,7 @@ app.post('/edit-profile',   upload.single('file'), verifyTokenMiddleware, async(
         const url = data.rows[0].profilephoto;
         // Function to extract the public ID from the URL
         if(url){
-            function extractPublicIdFromUrl(url) {
+            function extractPublicIdFromUrl(url) { // extracting public id from url
                 const parts = url.split('/'); // Split the URL by '/'
                 const index = parts.findIndex((part) => part === 'upload'); // Locate "upload" in the URL
                 const publicIdWithFolder = parts.slice(index + 1).join('/'); // Get everything after "upload"
@@ -366,11 +366,11 @@ app.post('/edit-profile',   upload.single('file'), verifyTokenMiddleware, async(
 });
 
 
-app.post('/authenticate-user', verifyTokenMiddleware, async(req, res)=>{
+app.post('/authenticate-user', verifyTokenMiddleware, async(req, res)=>{  // authenticate using JWT
    const {username}=req.body;
    const token = req.headers.authorization?.split(' ')[1];
    try{
-    const data=await db.query("select token from users where username=$1",[username])
+    const data=await db.query("select token from users where username=$1",[username])  // authentication by checking token in db
         if( data.rows.length>0 && data.rows[0].token===token){
             res.json({status:'valid'})
         }
@@ -383,9 +383,9 @@ app.post('/authenticate-user', verifyTokenMiddleware, async(req, res)=>{
     }   
 })
 
-server.listen(PORT,()=>{
+server.listen(PORT,()=>{  // server listning
     console.log(`connected on port ${PORT}`);
 })
 
 
-const active_users={};
+const active_users={};  // list of active users
