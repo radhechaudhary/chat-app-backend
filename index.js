@@ -66,6 +66,21 @@ io.on('connection',(socket)=>{  // socket connection
         users[userId] = socket.id;
         active_users[userId]=true;
       });
+      socket.on("disconnect", (reason) => {
+        // console.log(`❌ User disconnected: ${socket.id}, Reason: ${reason}`);
+        
+        // Remove user from active list
+
+        const userId=Object.keys(users).find(key => users[key] === socket.id);
+        delete active_users[userId];
+        delete users_online[userId];
+        delete users[userId];
+
+        // Notify other users that this user went offline
+        if (userId) {
+            io.emit("userOffline", userId);
+        }
+    });
       socket.on('get_saved_messages', async(username)=>{
         if(username){
             const data=await db.query('select new_messages from users where username=$1', [username]);
