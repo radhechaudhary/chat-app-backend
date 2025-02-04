@@ -62,12 +62,12 @@ app.get("/", (req,res)=>{
 })
 
 io.on('connection',(socket)=>{  // socket connection
-    users[userId] = socket.id;
-    active_users[userId]=true;
-    socket.on('register', (userId) => { // regetser socketId
+    const userId = socket.handshake.query.userId;
+    if(userId){
         users[userId] = socket.id;
         active_users[userId]=true;
-      });
+        users_online[userId]=true;
+    }
       socket.on("disconnect", (reason) => {
         // console.log(`❌ User disconnected: ${socket.id}, Reason: ${reason}`);
         
@@ -76,7 +76,6 @@ io.on('connection',(socket)=>{  // socket connection
         const userId=Object.keys(users).find(key => users[key] === socket.id);
         delete active_users[userId];
         users_online[userId]=false;
-        delete users[userId];
         io.emit('update_status_list', users_online);
 
     });
