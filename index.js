@@ -71,8 +71,8 @@ io.on('connection',(socket)=>{  // socket connection
       socket.on("disconnect", (reason) => { // listner when socket disconnects
         const userId=Object.keys(users).find(key => users[key] === socket.id);
         if (userId && (reason==='ping timeout' || reason==='transport close')) {
-            delete active_users[userId];  
-            delete users_online[userId];  
+            active_users[userId]=false;  
+            users_online[userId]=false;  
             console.log(`User ${userId} removed from active users`);
         }
     });
