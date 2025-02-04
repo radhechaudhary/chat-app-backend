@@ -71,8 +71,8 @@ io.on('connection',(socket)=>{  // socket connection
       socket.on("disconnect", (reason) => { // listner when socket disconnects
         const userId=Object.keys(users).find(key => users[key] === socket.id);
         if (userId && (reason==='ping timeout' || reason==='transport close')) {
-            active_users[userId]=false;  
-            users_online[userId]=false;  
+            delete active_users[userId];  
+            delete users_online[userId];  
             console.log(`User ${userId} removed from active users`);
         }
     });
@@ -262,7 +262,8 @@ app.post('/upload-profile-photo',  upload.single('file'), async (req, res)=>{  /
     const {username, token}=req.body;
     try {
         if (!req.file || !req.file.buffer) {
-            return res.json({status:'no file'})
+            await db.query("update users set profilephoto=$1 where username=$2",["https://res.cloudinary.com/dtoym7pet/image/upload/v1738697092/profile_photos/rwrovdq5nixnmcwm3ddq.jpg", username])
+            return res.json({status:'no file', photo_url:"res.json({status:'valid', photo_url:uploadResult.secure_url}) "})
         }
         // Upload to Cloudinary with transformations
         const result =  cloudinary.uploader.upload_stream(
