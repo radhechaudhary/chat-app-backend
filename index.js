@@ -81,6 +81,7 @@ io.on('connection',(socket)=>{  // socket connection
         if(username){
             const data=await db.query('select new_messages from users where username=$1', [username]);
             const messages=data.rows[0].new_messages; 
+            console.log(messages)
             if(messages) {
                 await db.query('update users set new_messages=$1 where username=$2',['{}', username]);
                 Object.keys(messages).map((username)=>{
