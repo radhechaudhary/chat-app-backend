@@ -249,11 +249,11 @@ app.post('/signup', async(req, res)=>{   // signUp route
             username:username
         }
         const token = jsonwebtoken.sign(payload, secretKey); //token
-        const a=await db.query("update users set token=$1, new_messages=$3 where username=$2",[ token,  username, '{}' ])
+        await db.query("update users set token=$1, new_messages=$2 where username=$3",[ token,  '{}', username ])
         res.json({status:"valid", username:username, token:token}); // return valid status
-        }
+    }
     catch(err){
-        console.log(err)
+        console.log(err.message)
         res.send("username already present");
     }}
 })
