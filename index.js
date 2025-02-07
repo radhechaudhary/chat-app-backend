@@ -12,12 +12,13 @@ import users_online from "./users_online.js";
 import multer from "multer";
 import {v2 as cloudinary} from "cloudinary";
 import { createReadStream } from "streamifier";
+import dotenv from "dotenv";
 
 const PORT=8058;
 const app=express();
-// configDotenv();
+dotenv.config()
 app.use(cors({
-    origin: ["http://localhost:3000","https://chat-app-frontend-two-gold.vercel.app"],
+    origin: ["https://chat-app-frontend-two-gold.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -38,16 +39,16 @@ const io = new Server(server, {
   });
 
 cloudinary.config({
-    cloud_name:"dtoym7pet",
-    api_key:"571783941667238",
-    api_secret:"g8jU1T7FFL2YE3Xbs5D_5Yfmp24"
+    cloud_name:process.env.CLOUDINARY_CLOUD_NAME,
+    api_key:process.env.CLOUDINARY_API_KEY,
+    api_secret:process.env.CLOUDINARY_API_SECRET
 })
 
 //setup multer
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-const connectionString= "postgresql://postgres:HfdKaiaLwLwTxOYRtdgUnHpYaqGqcAqA@junction.proxy.rlwy.net:21476/railway"
+const connectionString= process.env.DATABASE_URL;
 const db=new pg.Client({
     connectionString,
     ssl: {
@@ -66,18 +67,15 @@ io.on('connection',(socket)=>{  // socket connection
         users[userId] = socket.id;
         active_users[userId]=true;
         users_online[userId]=true;
-        console.log(`user ${userId} got connected`)
     }
       socket.on("disconnect", (reason) => { // listner when socket disconnects
         const userId=Object.keys(users).find(key => users[key] === socket.id);
         if (userId && (reason==='ping timeout' || reason==='transport close')) {
             delete active_users[userId];  
             delete users_online[userId];  
-            console.log(`User ${userId} removed from active users`);
         }
     });
       socket.on('get_saved_messages', async(username)=>{
-        console.log(users[username])
         if(username){
             const data=await db.query('select new_messages from users where username=$1', [username]);
             const messages=data.rows[0].new_messages; 
